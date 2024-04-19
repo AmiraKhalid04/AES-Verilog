@@ -1,9 +1,9 @@
 //TODO A_1 :implement Binary -> BCD Converter
-module BCDconverter();
+module BCD_Converter();
 endmodule
 
 //TODO A_2 :implement BCD -> 7-segment Decoder
-module seg7_Deocder();
+module Seg7_Decoder();
 endmodule
 
 module main(out);
