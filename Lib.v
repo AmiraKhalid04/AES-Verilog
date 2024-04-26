@@ -3,13 +3,6 @@ module AddRoundKey ();
 endmodule
 
 
-module MixColumns ();
-    
-endmodule
-
-module InvMixColumns ();
-    
-endmodule
 
 module ShiftRows ();
     
