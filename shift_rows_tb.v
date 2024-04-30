@@ -1,8 +1,8 @@
 module shift_rows_tb;
 
-reg [127:0] in;
-wire [127:0] out;
-shift_rows tst(in, out);
+reg [0:127] in;
+wire [0:127] out;
+shift_rows test(in, out);
 
 initial begin 
     $monitor("[monitor] in = %h, out = %h", in, out);
