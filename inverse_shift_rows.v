@@ -2,7 +2,7 @@ module inverse_shift_rows (
 	input [0:127] state_in,
 	output [0:127] state_out);
 
-	// First row is not shifted
+    // First row is not shifted
     assign state_out[0:7] = state_in[0:7];
     assign state_out[32:39] = state_in[32:39];
     assign state_out[64:71] = state_in[64:71];
