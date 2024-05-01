@@ -1,6 +1,6 @@
 module InvMixColumns_tb;
-reg [127:0] in;
-wire [127:0] out;
+reg [0:127] in;
+wire [0:127] out;
 InvMixColumns tst(in, out);
 initial
 begin 

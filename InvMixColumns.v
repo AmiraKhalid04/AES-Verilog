@@ -1,6 +1,6 @@
 module InvMixColumns (state_in, state_out);
-input[127:0] state_in;
-output[127:0] state_out;
+input[0:127] state_in;
+output[0:127] state_out;
 
 
 function [7:0] mb2Reapeted;
@@ -37,11 +37,11 @@ endfunction
 
 genvar i;
   generate
-for ( i=0 ; i<4 ; i = i+1 ) begin
-      assign state_out[(i*32)+:8] = mb_0e(state_in[(i*32)+:8]) ^ mb_09(state_in[(i*32 + 8)+:8]) ^ mb_0d(state_in[(i*32 + 16)+:8]) ^ mb_0b(state_in[(i*32 + 24)+:8]);
-  assign state_out[(i*32 + 8)+:8] = mb_0b(state_in[(i*32)+:8]) ^ mb_0e(state_in[(i*32 + 8)+:8]) ^ mb_09(state_in[(i*32 + 16)+:8]) ^ mb_0d(state_in[(i*32 + 24)+:8]);
-  assign state_out[(i*32 + 16)+:8] = mb_0d(state_in[(i*32)+:8]) ^ mb_0b(state_in[(i*32 + 8)+:8]) ^ mb_0e(state_in[(i*32 + 16)+:8]) ^ mb_09(state_in[(i*32 + 24)+:8]);
-  assign state_out[(i*32 + 24)+:8] = mb_09(state_in[(i*32)+:8]) ^ mb_0d(state_in[(i*32 + 8)+:8]) ^ mb_0b(state_in[(i*32 + 16)+:8]) ^ mb_0e(state_in[(i*32 + 24)+:8]);
+for ( i=0 ; i<4 ; i = i+1 ) begin :InvMx_loop
+      assign state_out[(i*32)+:8] = mb_0e(state_in[(i*32)+:8]) ^ mb_0b(state_in[(i*32 + 8)+:8]) ^ mb_0d(state_in[(i*32 + 16)+:8]) ^ mb_09(state_in[(i*32 + 24)+:8]);
+  assign state_out[(i*32 + 8)+:8] = mb_09(state_in[(i*32)+:8]) ^ mb_0e(state_in[(i*32 + 8)+:8]) ^ mb_0b(state_in[(i*32 + 16)+:8]) ^ mb_0d(state_in[(i*32 + 24)+:8]);
+  assign state_out[(i*32 + 16)+:8] = mb_0d(state_in[(i*32)+:8]) ^ mb_09(state_in[(i*32 + 8)+:8]) ^ mb_0e(state_in[(i*32 + 16)+:8]) ^ mb_0b(state_in[(i*32 + 24)+:8]);
+  assign state_out[(i*32 + 24)+:8] = mb_0b(state_in[(i*32)+:8]) ^ mb_0d(state_in[(i*32 + 8)+:8]) ^ mb_09(state_in[(i*32 + 16)+:8]) ^ mb_0e(state_in[(i*32 + 24)+:8]);
 end
   endgenerate
 

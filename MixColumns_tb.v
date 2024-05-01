@@ -1,6 +1,6 @@
 module MixColumns_tb;
-reg [127:0] in;
-wire [127:0] out;
+reg [0:127] in;
+wire [0:127] out;
 MixColumns tst(in, out);
 initial begin 
     $monitor("[monitor] in = %h, out = %h", in, out);
