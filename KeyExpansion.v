@@ -1,12 +1,12 @@
-module KeyExpansion(input[127:0] key,output [1407:0]w,input Nk);
+module KeyExpansion(input[0:127] key,output [0:1407]w);
 
-function [31:0] subword(input [31:0]word);
+function [0:31] subword(input [0:31]word);
 begin 
   
-  subword[7:0]=c(word[7:0]);
-  subword[15:8]=c(word[15:8]);
-  subword[23:16]=c(word[23:16]);
-  subword[31:24]=c(word[31:24]);
+  subword[0:7]=c(word[0:7]);
+  subword[8:15]=c(word[8:15]);
+  subword[16:23]=c(word[16:23]);
+  subword[24:31]=c(word[24:31]);
 
   end
   endfunction
@@ -273,15 +273,12 @@ begin
 	endcase
 end
 endfunction
-function [31:0] rotword(input [31:0]word1);
+function [0:31] rotword(input [0:31]word1);
 begin
-
-rotword={word1[23:0],word1[31:24]};
-
-
+rotword={word1[8:31],word1[0:7]};
 end
 endfunction
-function  [31:0] Rcon(input [3:0] round );
+function  [0:31] Rcon(input [3:0] round );
     begin
       case (round)
         1: Rcon = 32'h01000000;
@@ -298,21 +295,14 @@ function  [31:0] Rcon(input [3:0] round );
       endcase
     end
 endfunction
-assign w[31:0]=key[127:96];
-assign w[63:32]=key[95:64];
-assign w[95:64]=key[63:32];
-assign w[127:96]=key[31:0];
+assign w[0:127]=key[0:127];
 genvar i;
 generate
-for(i=4;i<44;i=i+1)
-begin:name_for_forLoop
-
-   
+for(i=4;i<44;i=i+1) begin:name_for_forLoop
    if(i%4==0)
-  
-  assign    w[32*(i+1)-1:32*(i)]=subword(rotword(w[32*(i)-1:32*(i-1)]))^Rcon(i/4)^w[32*(i-3)-1:32*(i-4)];
+  	assign    w[(32*(i))+:32]= subword(rotword(w[(32*(i-1))+:32])) ^ Rcon(i/4) ^ w[(32*(i-4))+:32];
   else
-	assign  w[32*(i+1)-1:32*i]=w[32*(i)-1:32*(i-1)]^w[32*(i-3)-1:32*(i-4)];
+	assign  w[(32*i)+:32]= w[(32*(i-1))+:32] ^ w[(32*(i-4))+:32];
  
   
  
@@ -320,31 +310,7 @@ end
 endgenerate
 //TODO D: Design this Module
 endmodule
-module testbench();
-reg [127:0]key;
-wire [1407:0]word;
-reg x;
-assign x=4;
-assign key[127:0]='h2b7e151628aed2a6abf7158809cf4f3c;
-KeyExpansion k(key[127:0],word[1407:0],x);
 
-initial begin
-$monitor( "word_0: %h word_1: %h word_2: %h word_3: %h ",word[31:0],word[63:32],word[95:64],word[127:96],
- "word_4: %h word_5: %h word_6: %h word_7: %h ",word[159:128],word[191:160],word[223:192],word[255:224],
- "word_8: %h word_9: %h word_10: %h word_11: %h ",word[287:256],word[319:288],word[351:320],word[383:352],
- "word_12: %h word_13: %h word_14: %h word_15: %h ",word[415:384],word[447:416],word[479:448],word[511:480],
- "word_16: %h word_17: %h word_18: %h word_19: %h ",word[543:512],word[575:544],word[607:576],word[639:608],
- "word_20: %h word_21: %h word_22: %h word_23: %h ",word[671:640],word[703:672],word[735:704],word[767:736],
-"word_24: %h word_25: %h word_26: %h word_27: %h ",word[799:768],word[831:800],word[863:832],word[895:864],
- "word_28: %h word_29: %h word_30:%h word_31: %h ",word[927:896],word[959:928],word[991:960],word[1023:992],
- "word_32: %h word_33: %h word_34:%h word_35: %h ",word[1055:1024],word[1087:1056],word[1119:1088],word[1151:1120],
- "word_36: %h word_37: %h word_38:%h word_39: %h ",word[1183:1152],word[1215:1184],word[1247:1216],word[1279:1248],
-"word_40: %h word_41: %h word_42: %h word_43: %h ",word[1311:1280],word[1343:1312],word[1375:1344],word[1407:1376]);
-
-end
-
-
-endmodule
 
 
 
