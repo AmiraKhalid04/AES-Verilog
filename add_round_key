@@ -1,6 +1,0 @@
-module add_round_key(state,key,next_state);
-    input [127:0] key;
-    input [127:0] state;
-    output [127:0] next_state;
-    assign next_state =key^state;
-endmodule

@@ -1,7 +1,7 @@
 module add_round_key_tb();
- reg [127:0] state;
- reg [127:0] key;
- wire [127:0] next_state;
+ reg [0:127] state;
+ reg [0:127] key;
+ wire [0:127] next_state;
 
  initial 
  $monitor("key = %h,state=%h,next_state=%h",key,state,next_state);

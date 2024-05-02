@@ -1,6 +1,71 @@
+module ob_tst();
+    wire [0:127]in;
+    wire [0:127]out;
+   /// reg [0:127] out_state;
+    wire [0:127] inafter_AddKey;
+    wire [0:127] inafter_ShiftRow;
+    wire [0:127] inafter_SubBytes;
+    wire [0:127] inafter_MixColumns;
+    wire [0:127] key;
+    add_round_key U1(inafter_MixColumns,key, inafter_AddKey);
+    shift_rows U2(inafter_SubBytes, inafter_ShiftRow);
+    sub_bytes U3(in, inafter_SubBytes);
+    MixColumns U4(inafter_ShiftRow, inafter_MixColumns);
+    assign out = inafter_AddKey;
+    assign key = 128'hd6aa74fdd2af72fadaa678f1d6ab76fe;
+    assign in = 128'h00102030405060708090a0b0c0d0e0f0;
+    initial begin
+        $monitor("%h", out);
+    end
+
+
+endmodule
+
+
+module add_round_key(state,key,next_state);
+    input [0:127] key;
+    input [0:127] state;
+    output [0:127] next_state;
+    assign next_state =key^state;
+endmodule
+
+
+
+module MixColumns(state_in, state_out);
+input [0:127] state_in;
+output [0:127] state_out;
+
+function [7:0]mb_02;
+  input [7:0] x;
+  begin
+    if(x[7] == 1) mb_02 = ((x << 1) ^ 8'h1b);
+    else
+        mb_02 = x << 1; 
+  end
+    
+endfunction
+
+function [7:0]mb_03;
+    input[7:0] x;
+    begin
+    mb_03 = mb_02(x) ^ x;
+    end
+endfunction
+
+genvar i;
+  generate
+for ( i=0 ; i<4 ; i = i+1 ) begin :mx_loop   
+  assign state_out[(i*32)+:8] = mb_02(state_in[(i*32)+:8]) ^ mb_03(state_in[(i * 32 + 8)+:8]) ^ state_in[(i * 32 + 16)+:8] ^ state_in[(i*32 + 24)+:8];
+  assign state_out[(i*32 + 8)+:8] = state_in[(i*32)+:8] ^ mb_02(state_in[(i*32 + 8)+:8]) ^ mb_03(state_in[(i * 32 + 16)+:8]) ^state_in[(i*32 + 24)+:8];
+  assign state_out[(i*32 + 16)+:8] = state_in[(i*32)+:8] ^ state_in[(i * 32 + 8)+:8] ^ mb_02(state_in[(i * 32 + 16)+:8]) ^ mb_03(state_in[(i*32 + 24)+:8]);
+  assign state_out[(i*32 + 24)+:8] = mb_03(state_in[(i*32)+:8]) ^ state_in[(i*32 + 8)+:8] ^ state_in[(i*32 + 16)+:8] ^ mb_02(state_in[(i * 32 + 24)+:8]);
+end
+  endgenerate
+endmodule
+
 module sub_bytes (state,next_state);
-    input[127:0] state;
-	output[127:0] next_state;
+    input[0:127] state;
+	output[0:127] next_state;
 
 	// substitute_box works on 8 bits : 8'h 6f
 
@@ -282,5 +347,36 @@ module sub_bytes (state,next_state);
 		assign next_state[i+:8]=s_box(state[i+:8]);
 	   end 
 	endgenerate
+
+endmodule
+
+
+module shift_rows (
+	input [0:127] state_in,
+	output [0:127] state_out);
+
+    // First row is not shifted
+    assign state_out[0:7] = state_in[0:7];
+    assign state_out[32:39] = state_in[32:39];
+    assign state_out[64:71] = state_in[64:71];
+    assign state_out[96:103] = state_in[96:103];
+    
+    // Second row is shifted cyclically to the left by 1
+    assign state_out[8:15] = state_in[40:47];
+    assign state_out[40:47] = state_in[72:79];
+    assign state_out[72:79] = state_in[104:111];
+    assign state_out[104:111] = state_in[8:15];
+    
+    // Third row is shifted cyclically to the left by 2
+    assign state_out[16:23] = state_in[80:87];
+    assign state_out[48:55] = state_in[112:119];
+    assign state_out[80:87] = state_in[16:23];
+    assign state_out[112:119] = state_in[48:55];
+    
+    // Fourth row is shifted cyclically to the left by 3
+    assign state_out[24:31] = state_in[120:127];
+    assign state_out[56:63] = state_in[24:31];
+    assign state_out[88:95] = state_in[56:63];
+    assign state_out[120:127] = state_in[88:95];
 
 endmodule
