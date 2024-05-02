@@ -2,65 +2,35 @@ module Cipher(
      input[0:127] in, 
       input[0:1407] words,
        output[0:127] out,
-         input clk,
-         output [0:3] round_tst,
-         output [0:127] round_tst2,
-         output [0:127] round_tst3);
-    reg [3:0] round= 0;
+        input clk);
+    integer round= 0;
     wire [0:127] inafter_AddKey, inafter_ShiftRow, inafter_SubBytes, inafter_MixColumns;
-    reg [0:127] state, AddKeyReg, ShiftRowReg, subBytesReg, MixColumnsReg, currentKey;
-    sub_bytes U3(subBytesReg, inafter_SubBytes);
-    shift_rows U2(ShiftRowReg, inafter_ShiftRow);
-    MixColumns U4(MixColumnsReg, inafter_MixColumns);
-    add_round_key U1(AddkeyReg,currentKey , inafter_AddKey);
-    //assign inafter_AddKey = AddKeyReg ^ currentKey;
-    assign out = inafter_AddKey;
-    assign round_tst3 = state;
-    assign round_tst2 = currentKey;
-    assign round_tst = round;
-
-
+    reg [0:127] state,out_reg, currentKey;
+    add_round_key U1(state, currentKey, inafter_AddKey);
+    sub_bytes U2(inafter_AddKey, inafter_SubBytes);
+    shift_rows U3(inafter_SubBytes, inafter_ShiftRow);
+    MixColumns U4(inafter_ShiftRow, inafter_MixColumns);
+    assign out = out_reg;
     always @(posedge clk) begin
-        if(round < 11) begin
-            currentKey = words[(128*round)+:128];
-            #10;
+        if(round < 12) begin
+            
             if(round == 0)begin
-                #5;
-                AddKeyReg = in;
-                #5;
-                state = inafter_AddKey;
-                #5;
-                round = round + 1;
-            end
-            else if(0 < round < 10) begin
-                #5;
-                subBytesReg = state;
-                #5;
-                ShiftRowReg = inafter_SubBytes;
-                #5;
-                MixColumnsReg = inafter_ShiftRow;
-                #5;
-                AddKeyReg = inafter_MixColumns;
-                #5;
-                state = inafter_AddKey;
-                #5;
-                round = round + 1;
-            end else if(round == 10) begin
-                #5; 
-                subBytesReg = state;
-                #5;
-                ShiftRowReg = inafter_SubBytes;
-                #5;
-                AddKeyReg = inafter_ShiftRow;
-                #5;
-                state = inafter_AddKey;
-                #5;
-                round = round + 1;
-            end
+                state = in;
+             end
+            else if((0 < round) && (round < 10)) begin
+                out_reg = inafter_MixColumns;
+                state = out_reg;
+             end
+            else if(round == 10) begin
+                out_reg = inafter_ShiftRow;
+                state = out_reg;
+             end
+            else if(round == 11) begin
+                out_reg = inafter_AddKey;
+                state = out_reg;
+             end
+            currentKey = words[(128*round)+:128];
+            round = round + 1;
         end
     end
 endmodule
-
-
-
-
