@@ -4,9 +4,6 @@ module Cipher_tb;
     reg [0:127] key;
     wire [0:1407] words;
     wire [0:127] out;
-    wire [0:127] round_tst2;
-    wire [0:127] round_tst3;
-    wire [3:0] round_tst;
     KeyExpansion tst2(key,words);
     Cipher tst(in, words, out, clk);
     always begin
