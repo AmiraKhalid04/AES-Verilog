@@ -2,7 +2,7 @@ module KeyExpansion_tb();
 reg [0:127]key;
 wire [0:1407]word;
 assign key[0:127]='h2b7e151628aed2a6abf7158809cf4f3c;
-KeyExpansion k(key,word);
+KeyExpansion #(.x(0))k(key,word);
     integer i;
     initial begin
     #10;   
