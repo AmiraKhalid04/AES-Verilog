@@ -1,4 +1,4 @@
-module KeyExpansion#(parameter x)(input[0:127+64*x] key,output [0:128*(11+2*x)-1]w);
+module key_exp_192(input[0:191] key,output [0:1663]w);
 
 function [0:31] subword(input [0:31]word);
 begin 
@@ -295,24 +295,26 @@ function  [0:31] Rcon(input [3:0] round );
       endcase
     end
 endfunction
-assign w[0:127+64*x]=key[0:127+64*x];
+assign w[0:191]=key[0:191];
 genvar i;
 generate
-for(i=(4+(2*x));i<44+8*x;i=i+1) begin:name_for_forLoop
-   if(i%((2*x)+4)==0)
-  	assign  w[32*(i):32*(i+1)-1]= subword(rotword(w[32*(i-1):32*(i)-1])) ^ Rcon(i/(4+(2*x))) ^ w[32*(i-(4+(2*x))):32*(i-(4+(2*x))+1)-1];
-    else if(i%8==4&&x==2) 
-    assign   w[32*(i):32*(i+1)-1]= w[32*(i-(4+(2*x))):32*(i-(4+(2*x))+1)-1]^subword(w[32*(i-1):32*(i)-1]); 
-	else assign  w[32*(i):32*(i+1)-1]=w[32*(i-1):32*(i)-1]^  w[32*(i-(4+(2*x))):32*(i-(4+(2*x))+1)-1];
- 
-  
- 
+for(i=6;i<52;i=i+1) begin:name_for_forLoop
+   if(i%6==0)
+  	assign    w[32*(i):32*(i+1)-1]= subword(rotword(w[32*(i-1):32*(i)-1])) ^ Rcon(i/6) ^ w[32*(i-6):32*(i-5)-1];
+	else assign w[32*(i):32*(i+1)-1]=w[32*(i-1):32*(i)-1]^  w[32*(i-6):32*(i-5)-1];
 end
 endgenerate
 //TODO D: Design this Module
 endmodule
-
-
+module test();
+reg [0:191]in;
+wire [0:1663]out;
+assign in='h8e73b0f7da0e6452c810f32b809079e562f8ead2522c6b7b;
+key_exp_192 k(in,out);
+initial begin
+$monitor("word %h"  ,   out);
+end
+endmodule
 
 
 
