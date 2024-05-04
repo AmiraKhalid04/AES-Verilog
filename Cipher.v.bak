@@ -18,7 +18,7 @@ module Cipher(
                 state <= inafter_MixColumns;
              end
             else if(round == 9) begin
-                state <= inafter_ShiftRow;
+                state <= inafter_SubBytes;
              end
             round <= round + 1;
         end
