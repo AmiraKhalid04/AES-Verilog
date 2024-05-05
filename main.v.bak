@@ -1,0 +1,48 @@
+//TODO A_1 :implement Binary -> BCD Converter
+module BCD_Converter();
+endmodule
+
+//TODO A_2 :implement BCD -> 7-segment Decoder
+module Seg7_Decoder();
+endmodule
+
+module main(input clk,output led);
+    reg [0:127]input_text=128'h00112233445566778899aabbccddeeff;
+    wire [0:127] outCipher;
+    wire [0:127] inDecipher;
+    wire [0:127] outDecipher;
+    reg [0:127] key=128'h000102030405060708090a0b0c0d0e0f;
+    wire [0:1407] words;
+    //wire decipher_enable;
+    //wire led_enable;
+    
+    //reg [4:0] round = 5'b0000;
+    integer round =-1; 
+    //assign decipher_enable=1'b0;
+    //assign inDecipher=(decipher_enable==1)?outCipher:0;
+    
+    KeyExpansion KEx(key,words);
+    Cipher C(input_text, words, outCipher, clk, round);
+    
+    Decipher iC(inDecipher, words, outDecipher, clk, round);
+
+    assign led = (outDecipher==input_text)?1'b1:1'b0;
+
+    always@(posedge clk) begin
+        if(round<22)
+            round<=round+1; 
+    end
+
+    // a desperate try 
+    integer i;
+    for(i = 0; i<=22; i++)
+    
+
+    
+
+
+    //After modifing input_text and out don't forget to
+    //Set the leastsig to the previous mods and this is your output
+
+    
+endmodule

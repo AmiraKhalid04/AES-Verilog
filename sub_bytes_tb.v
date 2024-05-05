@@ -28,8 +28,7 @@ initial begin
     //Round 9
      state=128'hfde3bad205e5d0d73547964ef1fe37f1;#10 
     //Round 10
-     state=128'hbd6e7c3df2b5779e0b61216e8b10b689;#10
-       
+     state=128'hbd6e7c3df2b5779e0b61216e8b10b689;     
 end
 
   
