@@ -11,7 +11,7 @@ module Cipher#(parameter x  )(
     shift_rows U3(inafter_SubBytes, inafter_ShiftRow);
     MixColumns U4(inafter_ShiftRow, inafter_MixColumns);
     assign inbefore_AddKey = (round == 0)? in:state;
-    assign out =inafter_AddKey;
+    assign out =(round == 0)? in:inafter_AddKey;
     always @(posedge clk) begin
         if(round < (10+2*x)) begin
             if(round < (9+2*x)) begin
