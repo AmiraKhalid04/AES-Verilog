@@ -4,8 +4,8 @@ module Cipher_tb;
     reg [0:127] key;
     wire [0:1407] words;
     wire [0:127] out;
-    KeyExpansion tst2(key,words);
-    Cipher tst(in, words, out, clk);
+    KeyExpansion #(.x(0))tst2(key,words);
+    Cipher #(.x(0))tst(in, words, out, clk);
     always begin
         #10;
         clk = ~clk;
@@ -14,6 +14,6 @@ module Cipher_tb;
         $monitor("%h", out);
         clk = 0;
         in = 128'h00112233445566778899aabbccddeeff;
-        key = 128'h000102030405060708090a0b0c0d0e0f;
+        key = 191'h000102030405060708090a0b0c0d0e0f;
     end
 endmodule
