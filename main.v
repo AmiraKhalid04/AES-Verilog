@@ -75,9 +75,17 @@ output [6:0] seg_units,
 output [6:0] seg_tens,
 output [6:0] seg_hundreds);
 reg [1:0]selector;
-always@(*)
+    integer round =0; 
+always@(SW[0]or posedge SW[1]or posedge SW[2]
+or negedge SW[1]or negedge SW[2])
 begin
-    if(SW[1]==1)
+round=0;
+end
+always@( posedge SW[1]or posedge SW[2]
+or negedge SW[1]or negedge SW[2])
+begin
+    round=0;
+    if(SW[1]==1&&SW[2]==0)
     selector=1;
     else if(SW[2]==1)
     selector=2;
@@ -105,7 +113,6 @@ end
     wire [7:0] least_bytes;
     
     
-    integer round =0; 
     
     
     BCD_converter bcd(least_bytes,units,tens,hundreds);
