@@ -75,19 +75,22 @@ output [6:0] seg_units,
 output [6:0] seg_tens,
 output [6:0] seg_hundreds);
 reg [1:0]selector;
-integer round =0; 
-always@( *)
+    integer round =0; 
+always@(SW[0]or posedge SW[1]or posedge SW[2]
+or negedge SW[1]or negedge SW[2])
 begin
-    
-    if(SW[1]==1)
+round=0;
+end
+always@( posedge SW[1]or posedge SW[2]
+or negedge SW[1]or negedge SW[2])
+begin
+    round=0;
+    if(SW[1]==1&&SW[2]==0)
     selector=1;
     else if(SW[2]==1)
     selector=2;
     else selector=0;
-	 
-	
 end
-
     reg [0:127]input_text=128'h00112233445566778899aabbccddeeff;
     wire [0:127] outCipher_128;
     wire [0:127] outCipher_192;
@@ -137,12 +140,9 @@ end
     (round <= 10+2*selector&&selector==2)? outCipher_256[120:127]:
     (selector==1)?outDecipher_192[120:127]:(selector==2)?outDecipher_256[120:127]:
     outDecipher_128[120:127];     // i think decipher must start from round 11
-    always@(posedge clk ) begin
-        if(SW[0]==1)
-		  begin
-		  round=0;
-		  end
-        else if(round < 28) begin          //ternary operator to avoid first condition don't care (round ==0)
+    always@(posedge clk) begin
+        
+        if(round < 20+4*selector) begin          //ternary operator to avoid first condition don't care (round ==0)
         
              round<=round+1;     
             end 

@@ -6,8 +6,8 @@ module Decipher#(parameter x)(
     , input [4:0] round
 );
 
-reg [0:127]finalstate;
     //integer round = 10;
+
     wire [0:127] inafter_AddKey, inafter_InvShiftRow, inafter_InvSubBytes, inafter_InvMixColumns;
     reg [0:127] state, inbefore_AddKey;
     wire [0:127] inv_sr;
@@ -23,11 +23,8 @@ reg [0:127]finalstate;
    )? in^ words[(128*(10+2*x))+:128]:inafter_InvMixColumns;
     
      //handling boundary conditions when <10
-always @(*)
-if(round==20+4*x)
-finalstate=inafter_AddKey;
 
-    assign out =(round>20+4*x)?finalstate:(round == 20+4*x)? inafter_AddKey:(round == 10+2*x)?in^ words[(128*(10+2*x))+:128]:inafter_InvMixColumns;    // 9 or 10
+    assign out =(round == 20+4*x)? inafter_AddKey:(round == 10+2*x)?in^ words[(128*(10+2*x))+:128]:inafter_InvMixColumns;    // 9 or 10
 
   
     always @(posedge clk) begin
