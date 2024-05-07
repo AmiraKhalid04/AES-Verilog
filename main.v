@@ -139,7 +139,7 @@ end
     outDecipher_128[120:127];     // i think decipher must start from round 11
     always@(posedge KEY ) begin
        
-        else if(round < 28) begin          //ternary operator to avoid first condition don't care (round ==0)
+         if(round < 28) begin          //ternary operator to avoid first condition don't care (round ==0)
         
              round<=round+1;     
             end 
