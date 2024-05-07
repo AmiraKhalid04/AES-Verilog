@@ -70,7 +70,7 @@ module seg7_decoder(
     end
 endmodule
 
-module main(input clk,output LEDR,input [2:0]SW, 
+module main(input KEY,output LEDR,input [2:0]SW, 
 output [6:0] seg_units,
 output [6:0] seg_tens,
 output [6:0] seg_hundreds);
@@ -119,14 +119,14 @@ end
 
     
     KeyExpansion #(.x(0))KEx_128(key[0:127],words_128[0:1407]);
-    Cipher #(.x(0))C_128(input_text, words_128[0:1407], outCipher_128, clk, round);
-    Decipher #(.x(0))iC_128(outCipher_128, words_128[0:1407], outDecipher_128, clk, round);
+    Cipher #(.x(0))C_128(input_text, words_128[0:1407], outCipher_128, KEY, round);
+    Decipher #(.x(0))iC_128(outCipher_128, words_128[0:1407], outDecipher_128, KEY, round);
     KeyExpansion #(.x(1))KEx_192(key[0:191],words_192[0:1663]);
-    Cipher #(.x(1))C_192(input_text, words_192[0:1663], outCipher_192, clk, round);
-    Decipher #(.x(1))iC_192(outCipher_192, words_192[0:1663], outDecipher_192, clk, round);
+    Cipher #(.x(1))C_192(input_text, words_192[0:1663], outCipher_192, KEY, round);
+    Decipher #(.x(1))iC_192(outCipher_192, words_192[0:1663], outDecipher_192, KEY, round);
     KeyExpansion #(.x(2))KEx_256(key[0:255],words_256[0:1919]);
-    Cipher #(.x(2))C_256(input_text, words_256[0:1919], outCipher_256, clk, round);
-    Decipher #(.x(2))iC_256(outCipher_256, words_256[0:1919], outDecipher_256, clk, round);
+    Cipher #(.x(2))C_256(input_text, words_256[0:1919], outCipher_256, EY, round);
+    Decipher #(.x(2))iC_256(outCipher_256, words_256[0:1919], outDecipher_256, KEY, round);
 
     //Test Code
     //assign outDeCipher=(selector==1)?outDecipher_192:(selector==2)?outDecipher_256:outDecipher_128;
@@ -137,7 +137,7 @@ end
     (round <= 10+2*selector&&selector==2)? outCipher_256[120:127]:
     (selector==1)?outDecipher_192[120:127]:(selector==2)?outDecipher_256[120:127]:
     outDecipher_128[120:127];     // i think decipher must start from round 11
-    always@(posedge clk ) begin
+    always@(posedge KEY ) begin
         if(SW[0]==1)
 		  begin
 		  round=0;
