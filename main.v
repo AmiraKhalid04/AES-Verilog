@@ -138,10 +138,7 @@ end
     (selector==1)?outDecipher_192[120:127]:(selector==2)?outDecipher_256[120:127]:
     outDecipher_128[120:127];     // i think decipher must start from round 11
     always@(posedge KEY ) begin
-        if(SW[0]==1)
-		  begin
-		  round=0;
-		  end
+       
         else if(round < 28) begin          //ternary operator to avoid first condition don't care (round ==0)
         
              round<=round+1;     
