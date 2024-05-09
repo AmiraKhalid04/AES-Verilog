@@ -58,19 +58,19 @@ module seg7_decoder(
             4'b0000: out <= 7'b1000000;
             4'b0001: out <= 7'b1111001;
             4'b0010: out <= 7'b0100100;
-            4'b0011: out <= 7'b0011000;
+            4'b0011: out <= 7'b0110000;
             4'b0100: out <= 7'b0011001;
             4'b0101: out <= 7'b0010010;
-            4'b0110: out <= 7'b0000011;
+            4'b0110: out <= 7'b0000010;
             4'b0111: out <= 7'b1111000;
-            4'b1000: out <= 7'b0000100;
+            4'b1000: out <= 7'b0000000;
             4'b1001: out <= 7'b0010000;
             default: out <= 7'b0000000;
         endcase
     end
 endmodule
 
-module main(input KEY,output LEDR, 
+module main(input KEY,output LEDR,input rst, 
 output [6:0] seg_units,
 output [6:0] seg_tens,
 output [6:0] seg_hundreds);
@@ -113,18 +113,18 @@ integer round =0;
     Decipher #(.x(0))iC_128(outCipher_128, words_128[0:1407], outDecipher_128, KEY, round);
     Cipher #(.x(1))C_192(input_text, words_192[0:1663], outCipher_192, KEY, round);
     Decipher #(.x(1))iC_192(outCipher_192, words_192[0:1663], outDecipher_192, KEY, round);
-    Cipher #(.x(2))C_256(input_text, words_256[0:1919], outCipher_256, EY, round);
+    Cipher #(.x(2))C_256(input_text, words_256[0:1919], outCipher_256, KEY, round);
     Decipher #(.x(2))iC_256(outCipher_256, words_256[0:1919], outDecipher_256, KEY, round);
 
 
-    assign LEDR = (outDecipher_128==input_text)?1'b1:
+    assign LEDR = (outDecipher_256==input_text)?1'b1:
     1'b0;
-    assign least_bytes =(round <= 10)? outCipher_128[120:127]:
-    outDecipher_128[120:127];     // i think decipher must start from round 11
-    always@(posedge KEY ) begin
-       
-         if(round < 28) begin          //ternary operator to avoid first condition don't care (round ==0)
-        
+    assign least_bytes =(round <= 14)? outCipher_256[120:127]:
+    outDecipher_256[120:127];     // i think decipher must start from round 11
+    always@(posedge KEY or posedge rst) begin
+       if (rst)begin round = 0; end
+
+       else if(round < 28) begin          //ternary operator to avoid first condition don't care (round ==0)        
              round<=round+1;     
             end 
           
