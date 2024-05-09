@@ -1,6 +1,6 @@
 module sub_bytes (state,next_state);
-    input[127:0] state;
-	output[127:0] next_state;
+    input[0:127] state;
+	output[0:127] next_state;
 
 	// substitute_box works on 8 bits : 8'h 6f
 

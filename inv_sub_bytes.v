@@ -1,4 +1,4 @@
-module sub_bytes (state,next_state);
+module inv_sub_bytes (state,next_state);
     input[127:0] state;
 	output[127:0] next_state;
 
@@ -8,7 +8,7 @@ module sub_bytes (state,next_state);
        
     input[7:0] in;
     reg [7:0] out;
-
+	begin
    
 	case(in)
 
@@ -269,7 +269,9 @@ module sub_bytes (state,next_state);
 				8'hfe:out =8'h0c;
 				8'hff:out =8'h7d;
 	endcase 
+	
 	inv_s_box=out;
+	end
 	endfunction
 
 	 genvar i;
