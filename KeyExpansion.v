@@ -1,4 +1,4 @@
-module KeyExpansion#(parameter x)(input[0:127+64*x] key,output [0:128*(11+2*x)-1]w);
+module KeyExpansion(input[0:127] key,output [0:1407]w);
 
 function [0:31] subword(input [0:31]word);
 begin 
@@ -295,15 +295,14 @@ function  [0:31] Rcon(input [3:0] round );
       endcase
     end
 endfunction
-assign w[0:127+64*x]=key[0:127+64*x];
+assign w[0:127]=key[0:127];
 genvar i;
 generate
-for(i=(4+(2*x));i<44+8*x;i=i+1) begin:name_for_forLoop
-   if(i%((2*x)+4)==0)
-  	assign  w[32*(i):32*(i+1)-1]= subword(rotword(w[32*(i-1):32*(i)-1])) ^ Rcon(i/(4+(2*x))) ^ w[32*(i-(4+(2*x))):32*(i-(4+(2*x))+1)-1];
-    else if(i%8==4&&x==2) 
-    assign   w[32*(i):32*(i+1)-1]= w[32*(i-(4+(2*x))):32*(i-(4+(2*x))+1)-1]^subword(w[32*(i-1):32*(i)-1]); 
-	else assign  w[32*(i):32*(i+1)-1]=w[32*(i-1):32*(i)-1]^  w[32*(i-(4+(2*x))):32*(i-(4+(2*x))+1)-1];
+for(i=4;i<44;i=i+1) begin:name_for_forLoop
+   if(i%4==0)
+  	assign    w[(32*(i))+:32]= subword(rotword(w[(32*(i-1))+:32])) ^ Rcon(i/4) ^ w[(32*(i-4))+:32];
+  else
+	assign  w[(32*i)+:32]= w[(32*(i-1))+:32] ^ w[(32*(i-4))+:32];
  
   
  
