@@ -1,5 +1,4 @@
 module shift_rows_tb;
-
 reg [0:127] in;
 wire [0:127] out;
 shift_rows test(in, out);
