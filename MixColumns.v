@@ -1,6 +1,6 @@
-module MixColumns(state_in, state_out);
-input [0:127] state_in;
-output [0:127] state_out;
+module MixColumns(
+  input [0:127] state_in, 
+  output [0:127] state_out);
 
 function [7:0]mb_02;
   input [7:0] x;
