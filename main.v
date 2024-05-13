@@ -87,7 +87,7 @@ reg[3:0] selector ;
     wire [0:127] outCipher_128;
     wire [0:127] outCipher_192;
     wire [0:127] outCipher_256;
-    //wire [0:127] outDecipher;
+    
 
     wire [0:127] outDecipher_128;
     wire [0:127] outDecipher_192;
@@ -104,17 +104,22 @@ reg[3:0] selector ;
     wire [3:0] tens_round;
     wire [3:0] hundreds_round;
     wire [7:0] least_bytes;
+    assign enableC128 =(round <= 10)? 1:0;
+    assign enableC192 =(round <= 12)? 1:0;
+    assign enableC256 =(round <= 14)? 1:0;
+    assign enableD128 =(round >= 10)? 1:0;
+    assign enableD192 =(round >= 12)? 1:0;
+    assign enableD256 =(round >= 14)? 1:0;
     
-    always@( *)
-begin
+    always@( *) 
+    begin
+        if(SW[1:0]==2'b01)
+            selector=1;
+        else if(SW[1:0]==2'b10)
+            selector=2;
+        else selector=0;
+    end
 
-    if(SW[1:0]==2'b01)
-    selector=1;
-    else if(SW[1:0]==2'b10)
-    selector=2;
-    else selector=0;
-
-end
     assign LEDR = (outDecipher_128==input_text&&selector==0)?1'b1:(outDecipher_192==input_text&&selector==1)?1'b1:
     (outDecipher_256==input_text&&selector==2)?1'b1:1'b0;
     assign least_bytes =(round <= 10+2*selector&&selector==0)? outCipher_128[120:127]:
@@ -136,18 +141,15 @@ end
     KeyExpansion #(.x(1))KEx_192(key[0:191],words_192[0:1663]);
     KeyExpansion #(.x(2))KEx_256(key[0:255],words_256[0:1919]);
     
-    Cipher #(.x(0))C_128(input_text, words_128[0:1407], outCipher_128, KEY, round);
-    Decipher #(.x(0))iC_128(outCipher_128, words_128[0:1407], outDecipher_128, KEY, round);
-    Cipher #(.x(1))C_192(input_text, words_192[0:1663], outCipher_192, KEY, round);
-    Decipher #(.x(1))iC_192(outCipher_192, words_192[0:1663], outDecipher_192, KEY, round);
-    Cipher #(.x(2))C_256(input_text, words_256[0:1919], outCipher_256, KEY, round);
-    Decipher #(.x(2))iC_256(outCipher_256, words_256[0:1919], outDecipher_256, KEY, round);
+    Cipher #(.x(0))C_128(input_text, words_128[0:1407], outCipher_128, KEY,rst, enableC128);
+    Decipher #(.x(0))iC_128(outCipher_128, words_128[0:1407], outDecipher_128, KEY,rst, enableD128);
+    Cipher #(.x(1))C_192(input_text, words_192[0:1663], outCipher_192, KEY,rst, enableC192);
+    Decipher #(.x(1))iC_192(outCipher_192, words_192[0:1663], outDecipher_192, KEY,rst, enableD192);
+    Cipher #(.x(2))C_256(input_text, words_256[0:1919], outCipher_256, KEY,rst, enableC256);
+    Decipher #(.x(2))iC_256(outCipher_256, words_256[0:1919], outDecipher_256, KEY,rst, enableD256);
 
     
-    // assign LEDR = (outDecipher_256==input_text)?1'b1:
-    // 1'b0;
-    // assign least_bytes =(round <= 14)? outCipher_256[120:127]:
-    // outDecipher_256[120:127];     // i think decipher must start from round 11
+
     always@(posedge KEY or posedge rst) begin
        if (rst)begin round = 0; end
        else if(round < 28) begin          //ternary operator to avoid first condition don't care (round ==0)        
