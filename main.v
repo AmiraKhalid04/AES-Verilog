@@ -71,15 +71,11 @@ module seg7_decoder(
 endmodule
 
 
-module main(input KEY,output LEDR,input rst, 
+module main(input clk,output led,input rst, 
 output [6:0] seg_units,
 output [6:0] seg_tens,
 output [6:0] seg_hundreds,
-output [6:0] seg_selector,
-output [6:0] seg_units_round,
-output [6:0] seg_tens_round,
-
-input [1:0] SW);
+input [1:0] sel);
 
 integer round =0; 
 reg[3:0] selector ;
@@ -100,9 +96,6 @@ reg[3:0] selector ;
     wire [3:0] units;
     wire [3:0] tens;
     wire [3:0] hundreds;
-    wire [3:0] units_round;
-    wire [3:0] tens_round;
-    wire [3:0] hundreds_round;
     wire [7:0] least_bytes;
     assign enableC128 =(round <= 10)? 1:0;
     assign enableC192 =(round <= 12)? 1:0;
@@ -113,14 +106,14 @@ reg[3:0] selector ;
     
     always@( *) 
     begin
-        if(SW[1:0]==2'b01)
+        if(sel[1:0]==2'b01)
             selector=1;
-        else if(SW[1:0]==2'b10)
+        else if(sel[1:0]==2'b10)
             selector=2;
         else selector=0;
     end
 
-    assign LEDR = (outDecipher_128==input_text&&selector==0)?1'b1:(outDecipher_192==input_text&&selector==1)?1'b1:
+    assign led = (round == 0)?1'b0:(outDecipher_128==input_text&&selector==0)?1'b1:(outDecipher_192==input_text&&selector==1)?1'b1:
     (outDecipher_256==input_text&&selector==2)?1'b1:1'b0;
     assign least_bytes =(round <= 10+2*selector&&selector==0)? outCipher_128[120:127]:
     (round <= 10+2*selector&&selector==1)? outCipher_192[120:127]:
@@ -128,29 +121,25 @@ reg[3:0] selector ;
     (selector==1)?outDecipher_192[120:127]:(selector==2)?outDecipher_256[120:127]:outDecipher_128[120:127];
 
     BCD_converter bcd(least_bytes,units,tens,hundreds);
-    BCD_converter bcd_round(round,units_round,tens_round,hundreds_round);
 
     seg7_decoder seg1(units, seg_units);
     seg7_decoder seg2(tens, seg_tens);
     seg7_decoder seg3(hundreds, seg_hundreds);
-    seg7_decoder seg4(selector, seg_selector);
-    seg7_decoder seg5(units_round, seg_units_round);
-    seg7_decoder seg6(tens_round, seg_tens_round);
 
     KeyExpansion #(.x(0))KEx_128(key[0:127],words_128[0:1407]);
     KeyExpansion #(.x(1))KEx_192(key[0:191],words_192[0:1663]);
     KeyExpansion #(.x(2))KEx_256(key[0:255],words_256[0:1919]);
     
-    Cipher #(.x(0))C_128(input_text, words_128[0:1407], outCipher_128, KEY,rst, enableC128);
-    Decipher #(.x(0))iC_128(outCipher_128, words_128[0:1407], outDecipher_128, KEY,rst, enableD128);
-    Cipher #(.x(1))C_192(input_text, words_192[0:1663], outCipher_192, KEY,rst, enableC192);
-    Decipher #(.x(1))iC_192(outCipher_192, words_192[0:1663], outDecipher_192, KEY,rst, enableD192);
-    Cipher #(.x(2))C_256(input_text, words_256[0:1919], outCipher_256, KEY,rst, enableC256);
-    Decipher #(.x(2))iC_256(outCipher_256, words_256[0:1919], outDecipher_256, KEY,rst, enableD256);
+    Cipher #(.x(0))C_128(input_text, words_128[0:1407], outCipher_128, clk,rst, enableC128);
+    Decipher #(.x(0))iC_128(outCipher_128, words_128[0:1407], outDecipher_128, clk,rst, enableD128);
+    Cipher #(.x(1))C_192(input_text, words_192[0:1663], outCipher_192, clk,rst, enableC192);
+    Decipher #(.x(1))iC_192(outCipher_192, words_192[0:1663], outDecipher_192, clk,rst, enableD192);
+    Cipher #(.x(2))C_256(input_text, words_256[0:1919], outCipher_256, clk,rst, enableC256);
+    Decipher #(.x(2))iC_256(outCipher_256, words_256[0:1919], outDecipher_256, clk,rst, enableD256);
 
     
 
-    always@(posedge KEY or posedge rst) begin
+    always@(posedge clk or posedge rst) begin
        if (rst)begin round = 0; end
        else if(round < 28) begin          //ternary operator to avoid first condition don't care (round ==0)        
              round<=round+1;     
